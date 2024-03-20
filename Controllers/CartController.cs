@@ -27,7 +27,7 @@ public class CartController : ControllerBase
     }
 
 
-    [HttpPost]
+    [HttpPost("AddToCart")]
     [Authorize]
     public IActionResult AddToCart([FromQuery] int quantity, int productId)
     {
@@ -72,8 +72,8 @@ public class CartController : ControllerBase
 
 
 
-    [HttpGet]
-    [Authorize("GetCart")]
+    [HttpGet("GetCart")]
+    [Authorize]
     public List<CartItemDto> GetCartItems()
     {
         return context.CartItems.ToList().Select(cartItem => new CartItemDto(cartItem)).ToList();

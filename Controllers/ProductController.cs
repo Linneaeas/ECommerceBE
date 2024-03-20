@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
-
 [ApiController]
 [Route("[controller]")]
 public class ProductController : ControllerBase
@@ -27,14 +25,14 @@ public class ProductController : ControllerBase
 
 
     // Lägger till en ny produkt
-    [HttpPost]
-    [Authorize]
-    public IActionResult AddProduct([FromQuery] string name, int id, string description, double price, string picture, int Inventory)
+    [HttpPost("AddProduct")]
+    // [Authorize]
+    public IActionResult AddProduct([FromQuery] string name, string description, double price, string picture, int Inventory)
     {
-        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        //  User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         Product product = new Product();
-        product.Id = id;
+
         product.Name = name;
         product.Description = description;
         product.Price = price;
@@ -44,14 +42,15 @@ public class ProductController : ControllerBase
         context.Products.Add(product);
         context.SaveChanges();
 
-        return Ok(new ProductDto(product));
+        return Ok("Product added successfully.");
     }
 
     // Uppdaterar en befintlig produkt
-    [HttpPut("{id}")]
+    [HttpPut("UpdateProduct/{id}")]
     public IActionResult UpdateProduct(int id, Product product)
     {
-        var existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+
         if (existingProduct == null)
             return NotFound("Product not found");
 
@@ -67,14 +66,15 @@ public class ProductController : ControllerBase
     }
 
     // Tar bort en produkt
-    [HttpDelete("{id}")]
+    [HttpDelete("DeleteProduct{id}")]
     public IActionResult DeleteProduct(int id)
     {
-        var product = context.Products.FirstOrDefault(p => p.Id == id);
-        if (product == null)
+        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+
+        if (existingProduct == null)
             return NotFound("Product not found");
 
-        context.Products.Remove(product);
+        context.Products.Remove(existingProduct);
         context.SaveChanges();
 
         return Ok("Product deleted successfully");
