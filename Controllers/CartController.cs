@@ -29,24 +29,48 @@ public class CartController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    public IActionResult AddToCart([FromQuery] int id, int quantity, Product product)
+    public IActionResult AddToCart([FromQuery] int quantity, int productId)
     {
         User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
 
-        CartItem cartItem = new CartItem();
-        cartItem.Id = id;
-        cartItem.Quantity = quantity;
-        cartItem.User = user;
-        cartItem.Product = product;
+        // Retrieve the product
+        Product? product = context.Products.FirstOrDefault(p => p.Id == productId);
+        if (product == null)
+        {
+            return NotFound("Product not found.");
+        }
 
-        user.CartItems.Add(cartItem);
+        // Check if the product already exists in the user's cart
+        CartItem existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
+        if (existingCartItem != null)
+        {
+            // If the product already exists in the cart, update its quantity
+            existingCartItem.Quantity += quantity;
+        }
+        else
+        {
+            // If the product does not exist in the cart, create a new cart item
+            CartItem cartItem = new CartItem
+            {
+                Product = product,
+                Quantity = quantity
+            };
 
-        context.CartItems.Add(cartItem);
+            user.CartItems.Add(cartItem);
+        }
+
+
         context.SaveChanges();
 
-        return Ok(new CartItemDto(cartItem));
+        return Ok("Product added to cart successfully.");
     }
+
+
 
     [HttpGet]
     [Authorize("GetCart")]
@@ -55,33 +79,33 @@ public class CartController : ControllerBase
         return context.CartItems.ToList().Select(cartItem => new CartItemDto(cartItem)).ToList();
     }
 
-    [HttpPut("update/{id}")]
-    [Authorize]
-    public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
-    {
-        var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-        if (existingCartItem == null)
-            return NotFound("Cart item not found");
+    /*  [HttpPut("update/{id}")]
+      [Authorize]
+      public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
+      {
+          var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
+          if (existingCartItem == null)
+              return NotFound("Cart item not found");
 
-        existingCartItem.Quantity = updatedCartItem.Quantity;
+          existingCartItem.Quantity = updatedCartItem.Quantity;
 
-        context.SaveChanges();
+          context.SaveChanges();
 
-        return Ok("Cart item updated successfully");
-    }
+          return Ok("Cart item updated successfully");
+      }
 
 
-    [HttpDelete("remove/{id}")]
-    [Authorize]
-    public IActionResult RemoveFromCart(int id)
-    {
-        var cartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-        if (cartItem == null)
-            return NotFound("Cart item not found");
+      [HttpDelete("remove/{id}")]
+      [Authorize]
+      public IActionResult RemoveFromCart(int id)
+      {
+          var cartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
+          if (cartItem == null)
+              return NotFound("Cart item not found");
 
-        context.CartItems.Remove(cartItem);
-        context.SaveChanges();
+          context.CartItems.Remove(cartItem);
+          context.SaveChanges();
 
-        return Ok("Cart item removed successfully");
-    }
+          return Ok("Cart item removed successfully");
+      }*/
 }

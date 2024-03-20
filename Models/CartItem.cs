@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 public class CartItem
 {
+
     [Key]
     public int Id { get; set; }
 
