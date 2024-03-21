@@ -26,10 +26,9 @@ public class CartController : ControllerBase
         this.roleManager = roleManager;
     }
 
-
-    [HttpPost("AddToCart")]
+    [HttpPost("AddToCart/{productId}")]
     [Authorize]
-    public IActionResult AddToCart([FromQuery] int quantity, int productId)
+    public IActionResult AddToCart(int quantity, int productId)
     {
         User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -39,14 +38,14 @@ public class CartController : ControllerBase
         }
 
         // Retrieve the product
-        Product? product = context.Products.FirstOrDefault(p => p.Id == productId);
+        Product product = context.Products.FirstOrDefault(p => p.Id == productId);
         if (product == null)
         {
             return NotFound("Product not found.");
         }
 
         // Check if the product already exists in the user's cart
-        CartItem existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
+        CartItem? existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
         if (existingCartItem != null)
         {
             // If the product already exists in the cart, update its quantity
@@ -69,6 +68,7 @@ public class CartController : ControllerBase
 
         return Ok("Product added to cart successfully.");
     }
+
 
 
 

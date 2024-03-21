@@ -23,5 +23,9 @@ public class CartItemDto
         this.Id = cartItem.Id;
         this.Quantity = cartItem.Quantity;
     }
+
+    public CartItemDto()
+    {
+    }
 }
 

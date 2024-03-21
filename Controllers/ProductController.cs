@@ -46,10 +46,11 @@ public class ProductController : ControllerBase
     }
 
     // Uppdaterar en befintlig produkt
-    [HttpPut("UpdateProduct/{id}")]
-    public IActionResult UpdateProduct(int id, Product product)
+    [HttpPut("UpdateProduct/{productId}")]
+    public IActionResult UpdateProduct(int productId, Product product)
     {
-        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+
+        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == productId);
 
         if (existingProduct == null)
             return NotFound("Product not found");
@@ -66,10 +67,10 @@ public class ProductController : ControllerBase
     }
 
     // Tar bort en produkt
-    [HttpDelete("DeleteProduct{id}")]
-    public IActionResult DeleteProduct(int id)
+    [HttpDelete("DeleteProduct{productId}")]
+    public IActionResult DeleteProduct(int productId)
     {
-        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == productId);
 
         if (existingProduct == null)
             return NotFound("Product not found");
