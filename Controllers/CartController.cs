@@ -26,12 +26,12 @@ public class CartController : ControllerBase
         this.roleManager = roleManager;
     }
 
-
     [HttpPost("AddToCart/{productId}/{quantity}")]
     [Authorize]
     public IActionResult AddToCart(int quantity, int productId)
     {
-        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        User user = context.Users.Include(u => u.CartItems).ThenInclude(ci => ci.Product).FirstOrDefault(u => u.Id == userId);
 
         if (user == null)
         {
@@ -49,7 +49,7 @@ public class CartController : ControllerBase
         }
 
         // Check if the product already exists in the user's cart
-        CartItem? existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
+        CartItem existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
         if (existingCartItem != null)
         {
             // If the product already exists in the cart, update its quantity
@@ -68,27 +68,9 @@ public class CartController : ControllerBase
             user.CartItems.Add(cartItem);
         }
 
-
         context.SaveChanges();
 
         return Ok("Product added to cart successfully.");
-    }
-
-
-
-    [HttpDelete("RemoveFromCart/{cartItemId}")]
-    //[Authorize]
-    public IActionResult RemoveFromCart(int cartItemId)
-    {
-        CartItem existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
-
-        if (existingCartItem == null)
-            return NotFound("Item not found");
-
-        context.CartItems.Remove(existingCartItem);
-        context.SaveChanges();
-
-        return Ok("Item deleted successfully");
     }
 
 
@@ -109,6 +91,25 @@ public class CartController : ControllerBase
 
         return cartItems;
     }
+
+
+    [HttpDelete("RemoveFromCart/{cartItemId}")]
+    //[Authorize]
+    public IActionResult RemoveFromCart(int cartItemId)
+    {
+        CartItem existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
+
+        if (existingCartItem == null)
+            return NotFound("Item not found");
+
+        context.CartItems.Remove(existingCartItem);
+        context.SaveChanges();
+
+        return Ok("Item deleted successfully");
+    }
+
+
+
 
 
 
