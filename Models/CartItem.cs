@@ -12,7 +12,14 @@ public class CartItem
 
     public User User { get; set; }
     public Product Product { get; set; }
+
+    public CartItem()
+    {
+    }
 }
+
+
+
 /*public class CartItemDto
 {
     public int Id { get; set; }
@@ -23,9 +30,5 @@ public class CartItem
         this.Id = cartItem.Id;
         this.Quantity = cartItem.Quantity;
     }
-
-    public CartItemDto()
-    {
-    }
-}*/
+*/
 

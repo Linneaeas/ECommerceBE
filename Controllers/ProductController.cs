@@ -67,7 +67,7 @@ public class ProductController : ControllerBase
     }
 
     // Tar bort en produkt
-    [HttpDelete("DeleteProduct{productId}")]
+    [HttpDelete("DeleteProduct/{productId}")]
     public IActionResult DeleteProduct(int productId)
     {
         Product existingProduct = context.Products.FirstOrDefault(p => p.Id == productId);
