@@ -73,45 +73,41 @@ public class CartController : ControllerBase
     }
 
 
-
-
-
-
-
-    [HttpGet("GetCart")]
-    [Authorize]
-    public List<CartItemDto> GetCartItems()
-    {
-        return context.CartItems.ToList().Select(cartItem => new CartItemDto(cartItem)).ToList();
-    }
-
-    /*  [HttpPut("update/{id}")]
+    /* [HttpGet("GetCart")]
       [Authorize]
-      public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
+      public List<CartItem> GetCartItems()
       {
-          var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-          if (existingCartItem == null)
-              return NotFound("Cart item not found");
-
-          existingCartItem.Quantity = updatedCartItem.Quantity;
-
-          context.SaveChanges();
-
-          return Ok("Cart item updated successfully");
+          return context.CartItems.ToList().Select(cartItem => new CartItem(cartItem)).ToList();
       }
 
+      /*  [HttpPut("update/{id}")]
+        [Authorize]
+        public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
+        {
+            var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
+            if (existingCartItem == null)
+                return NotFound("Cart item not found");
 
-      [HttpDelete("remove/{id}")]
-      [Authorize]
-      public IActionResult RemoveFromCart(int id)
-      {
-          var cartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-          if (cartItem == null)
-              return NotFound("Cart item not found");
+            existingCartItem.Quantity = updatedCartItem.Quantity;
 
-          context.CartItems.Remove(cartItem);
-          context.SaveChanges();
+            context.SaveChanges();
 
-          return Ok("Cart item removed successfully");
-      }*/
+            return Ok("Cart item updated successfully");
+        }
+ */
+
+    [HttpDelete("RemoveFromCart/{cartItemId}")]
+    //[Authorize]
+    public IActionResult RemoveFromCart(int cartItemId)
+    {
+        CartItem existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
+
+        if (existingCartItem == null)
+            return NotFound("Item not found");
+
+        context.CartItems.Remove(existingCartItem);
+        context.SaveChanges();
+
+        return Ok("Item deleted successfully");
+    }
 }
