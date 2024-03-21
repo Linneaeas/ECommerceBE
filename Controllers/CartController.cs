@@ -26,7 +26,7 @@ public class CartController : ControllerBase
         this.roleManager = roleManager;
     }
 
-    [HttpPost("AddToCart/{productId}")]
+    [HttpPost("AddToCart/{productId}/{quantity}")]
     [Authorize]
     public IActionResult AddToCart(int quantity, int productId)
     {
@@ -36,7 +36,10 @@ public class CartController : ControllerBase
         {
             return NotFound("User not found.");
         }
-
+        if (quantity <= 0)
+        {
+            return BadRequest("Quantity should be a positive integer.");
+        }
         // Retrieve the product
         Product product = context.Products.FirstOrDefault(p => p.Id == productId);
         if (product == null)
@@ -68,6 +71,9 @@ public class CartController : ControllerBase
 
         return Ok("Product added to cart successfully.");
     }
+
+
+
 
 
 
