@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ECommerceBE;
 
@@ -21,18 +23,13 @@ public class Program
 
         builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
         builder.Services.AddAuthorization();
-        /*(options =>
-        {
-            options.AddPolicy(
-                "get_all_todos",
-                policy =>
-                {
-                    policy.RequireAuthenticatedUser().RequireRole("admin");
-                }
-            );
-        });*/
 
-        builder.Services.AddControllers();
+
+        builder.Services.AddControllers().AddJsonOptions(options =>
+          {
+              options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+          });
+
         builder.Services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
 
         SetupSecurity(builder);
@@ -100,6 +97,7 @@ public class MyClaimsTransformation : IClaimsTransformation
         principal.AddIdentity(claims);
         return await Task.FromResult(principal);
     }
+
 }
 
 

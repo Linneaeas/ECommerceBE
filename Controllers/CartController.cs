@@ -26,8 +26,7 @@ public class CartController : ControllerBase
         this.roleManager = roleManager;
     }
 
-    //Vi kanske kan ha AddToCart som alltid lägger till 1 av den produkten/skapar en ny om den inte finns, istället för att skriva in quantity så är quantity alltid 1 och ökas med 1 varje gång man gör request? samma sak med remove from cart fast tvärtom? Då baserat på ProductId (of that user) 
-    //ELLER, AddNewProductToCart som lägger till en product plus quantity, när man vill ändra quantity har vi en annan som okar quantity pa en product som redan finns i cart
+
     [HttpPost("AddToCart/{productId}/{quantity}")]
     [Authorize]
     public IActionResult AddToCart(int quantity, int productId)
@@ -62,10 +61,11 @@ public class CartController : ControllerBase
             CartItem cartItem = new CartItem
             {
                 Product = product,
-                Quantity = quantity
+                Quantity = quantity,
+                User = user
             };
 
-            user.CartItems.Add(cartItem); //Maste sta user annars sparas det inte kopplat till anvandaren
+            user.CartItems.Add(cartItem);
         }
 
 
@@ -75,31 +75,6 @@ public class CartController : ControllerBase
     }
 
 
-    [HttpGet("GetCart")]
-    [Authorize]
-    public List<CartItem> GetAllCartItems()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        return GetAllCartItems(userId).Select(CartItem => new CartItem()).ToList();
-    }
-
-
-    /*  [HttpPut("update/{id}")]
-      [Authorize]
-      public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
-      {
-          var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-          if (existingCartItem == null)
-              return NotFound("Cart item not found");
-
-          existingCartItem.Quantity = updatedCartItem.Quantity;
-
-          context.SaveChanges();
-
-          return Ok("Cart item updated successfully");
-      }
-*/
 
     [HttpDelete("RemoveFromCart/{cartItemId}")]
     //[Authorize]
@@ -117,6 +92,30 @@ public class CartController : ControllerBase
     }
 
 
+    [HttpGet("GetCartItems")]
+    [Authorize]
+    public List<CartItemDto> GetCartItems()
+    {
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var cartItems = context.CartItems
+            .Include(ci => ci.Product) // Include the associated product
+            .Where(ci => ci.User.Id == userId)
+            .Select(ci => new CartItemDto
+            {
+                Quantity = ci.Quantity,
+                ProductName = ci.Product.Name
+            })
+            .ToList();
+
+        return cartItems;
+    }
+
+
+
+}
+
+
+/*
     public List<CartItem> GetAllCartItems(string userId)
     {
         User? user = context.Users.Find(userId);
@@ -127,9 +126,31 @@ public class CartController : ControllerBase
 
         return context.CartItems.Where(CartItem => CartItem.User.Id == user.Id).ToList();
     }
+*/
 
-}
+/*  [HttpGet("GetCart")]
+  [Authorize]
+  public List<CartItem> GetAllCartItems()
+  {
+      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+      return GetAllCartItems(userId).Select(CartItem => new CartItem()).ToList();
+  }
 
 
+  /*[HttpPut("update/{id}")]
+  [Authorize]
+  public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
+  {
+      var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
+      if (existingCartItem == null)
+          return NotFound("Cart item not found");
 
+      existingCartItem.Quantity = updatedCartItem.Quantity;
+
+      context.SaveChanges();
+
+      return Ok("Cart item updated successfully");
+  }
+*/
 
