@@ -22,12 +22,9 @@ public class ProductController : ControllerBase
         this.userManager = userManager;
         this.roleManager = roleManager;
     }
-
-
-    // Lägger till en ny produkt
     [HttpPost("AddProduct")]
     // [Authorize]
-    public IActionResult AddProduct([FromQuery] string name, string description, double price, string picture, int Inventory)
+    public IActionResult AddProduct(string name, string description, double price, string picture, int inventory)
     {
         //  User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -37,15 +34,13 @@ public class ProductController : ControllerBase
         product.Description = description;
         product.Price = price;
         product.Picture = picture;
-        product.Inventory = Inventory;
+        product.Inventory = inventory;
 
         context.Products.Add(product);
         context.SaveChanges();
 
         return Ok("Product added successfully.");
     }
-
-    // Uppdaterar en befintlig produkt
     [HttpPut("UpdateProduct/{productId}")]
     public IActionResult UpdateProduct(int productId, Product product)
     {
@@ -62,11 +57,9 @@ public class ProductController : ControllerBase
         existingProduct.Inventory = product.Inventory;
 
         context.SaveChanges();
-
         return Ok("Product updated successfully");
     }
 
-    // Tar bort en produkt
     [HttpDelete("DeleteProduct/{productId}")]
     public IActionResult DeleteProduct(int productId)
     {

@@ -10,7 +10,6 @@ public class Product
     public string Picture { get; set; }
     public int Inventory { get; set; }
 }
-
 public class ProductDto
 {
     public int Id { get; set; }

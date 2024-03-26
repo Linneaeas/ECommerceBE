@@ -8,13 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("[controller]")]
-
 public class CartController : ControllerBase
 {
     MyDbContext context;
     UserManager<User> userManager;
     RoleManager<IdentityRole> roleManager;
-
     public CartController(
         MyDbContext context,
         UserManager<User> userManager,
@@ -32,7 +30,6 @@ public class CartController : ControllerBase
     {
         string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         User user = context.Users.Include(u => u.CartItems).ThenInclude(ci => ci.Product).FirstOrDefault(u => u.Id == userId);
-
         if (user == null)
         {
             return NotFound("User not found.");
@@ -41,23 +38,18 @@ public class CartController : ControllerBase
         {
             return BadRequest("Quantity should be a positive integer.");
         }
-        // Retrieve the product
         Product product = context.Products.FirstOrDefault(p => p.Id == productId);
         if (product == null)
         {
             return NotFound("Product not found.");
         }
-
-        // Check if the product already exists in the user's cart
         CartItem existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
         if (existingCartItem != null)
         {
-            // If the product already exists in the cart, update its quantity
             existingCartItem.Quantity += quantity;
         }
         else
         {
-            // If the product does not exist in the cart, create a new cart item
             CartItem cartItem = new CartItem
             {
                 Product = product,
@@ -69,10 +61,8 @@ public class CartController : ControllerBase
         }
 
         context.SaveChanges();
-
         return Ok("Product added to cart successfully.");
     }
-
 
     [HttpGet("GetCartItems")]
     [Authorize]
@@ -80,7 +70,7 @@ public class CartController : ControllerBase
     {
         string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var cartItems = context.CartItems
-            .Include(ci => ci.Product) // Include the associated product
+            .Include(ci => ci.Product)
             .Where(ci => ci.User.Id == userId)
             .Select(ci => new CartItemDto
             {
@@ -88,19 +78,23 @@ public class CartController : ControllerBase
                 ProductName = ci.Product.Name
             })
             .ToList();
-
         return cartItems;
     }
-
-
     [HttpDelete("RemoveFromCart/{cartItemId}")]
-    //[Authorize]
+    [Authorize]
     public IActionResult RemoveFromCart(int cartItemId)
     {
-        CartItem existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        CartItem existingCartItem = context.CartItems
+            .Include(ci => ci.User)
+            .FirstOrDefault(ci => ci.Id == cartItemId && ci.User.Id == userId);
+
 
         if (existingCartItem == null)
-            return NotFound("Item not found");
+        {
+            return NotFound("Item not found or does not belong to the current user");
+        }
 
         context.CartItems.Remove(existingCartItem);
         context.SaveChanges();
@@ -108,50 +102,5 @@ public class CartController : ControllerBase
         return Ok("Item deleted successfully");
     }
 
-
-
-
-
-
 }
-
-
-/*
-    public List<CartItem> GetAllCartItems(string userId)
-    {
-        User? user = context.Users.Find(userId);
-        if (user == null)
-        {
-            return new List<CartItem>();
-        }
-
-        return context.CartItems.Where(CartItem => CartItem.User.Id == user.Id).ToList();
-    }
-*/
-
-/*  [HttpGet("GetCart")]
-  [Authorize]
-  public List<CartItem> GetAllCartItems()
-  {
-      var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-      return GetAllCartItems(userId).Select(CartItem => new CartItem()).ToList();
-  }
-
-
-  /*[HttpPut("update/{id}")]
-  [Authorize]
-  public IActionResult UpdateCartItem(int id, CartItem updatedCartItem)
-  {
-      var existingCartItem = context.CartItems.FirstOrDefault(c => c.Id == id);
-      if (existingCartItem == null)
-          return NotFound("Cart item not found");
-
-      existingCartItem.Quantity = updatedCartItem.Quantity;
-
-      context.SaveChanges();
-
-      return Ok("Cart item updated successfully");
-  }
-*/
 

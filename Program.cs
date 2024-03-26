@@ -15,7 +15,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
         builder.Services.AddDbContext<MyDbContext>(options =>
         {
             options.UseNpgsql("Host=localhost;Port=5432;Database=ecbe;Username=postgres;Password=password");
@@ -23,7 +22,6 @@ public class Program
 
         builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
         builder.Services.AddAuthorization();
-
 
         builder.Services.AddControllers().AddJsonOptions(options =>
           {
@@ -34,7 +32,6 @@ public class Program
 
         SetupSecurity(builder);
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -44,7 +41,6 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -66,16 +62,13 @@ public class Program
             .AddApiEndpoints();
     }
 }
-
 public class MyClaimsTransformation : IClaimsTransformation
 {
     UserManager<User> userManager;
-
     public MyClaimsTransformation(UserManager<User> userManager)
     {
         this.userManager = userManager;
     }
-
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         ClaimsIdentity claims = new ClaimsIdentity();
@@ -93,11 +86,9 @@ public class MyClaimsTransformation : IClaimsTransformation
                 }
             }
         }
-
         principal.AddIdentity(claims);
         return await Task.FromResult(principal);
     }
-
 }
 
 

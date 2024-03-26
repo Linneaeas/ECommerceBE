@@ -12,8 +12,6 @@ public class UserController : ControllerBase
     MyDbContext context;
     UserManager<User> userManager;
     RoleManager<IdentityRole> roleManager;
-
-
     public UserController(MyDbContext context,
         UserManager<User> userManager,
         RoleManager<IdentityRole> roleManager)

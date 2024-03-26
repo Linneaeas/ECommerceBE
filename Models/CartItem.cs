@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 
 public class CartItem
 {
-
     [Key]
     public int Id { get; set; }
 
@@ -17,12 +16,8 @@ public class CartItem
     {
     }
 }
-
-
-
 public class CartItemDto
 {
-
     public int Quantity { get; set; }
     public string ProductName { get; set; }
 

@@ -23,8 +23,6 @@ public class CheckOutController : ControllerBase
         this.userManager = userManager;
         this.roleManager = roleManager;
     }
-
-
     [HttpDelete]
     [Authorize]
     public IActionResult CompleteCheckout(User user)
