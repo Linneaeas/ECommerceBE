@@ -23,22 +23,54 @@ public class CheckOutController : ControllerBase
         this.userManager = userManager;
         this.roleManager = roleManager;
     }
-    [HttpDelete]
+
+
+    [HttpPost("CompleteCheckout")]
     [Authorize]
-    public IActionResult CompleteCheckout(User user)
+    public IActionResult CompleteCheckout()
     {
         try
         {
-            var cartItems = context.CartItems.Where(c => c.User.Equals(user)).ToList();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = context.Users.Find(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
 
+            var cartItems = context.CartItems
+                .Where(c => c.User.Id == userId)
+                .Include(c => c.Product)
+                .ToList();
+
+            if (!cartItems.Any())
+            {
+                return BadRequest("Your cart is empty.");
+            }
+
+
+            var completedOrder = new CompletedOrder
+            {
+                UserId = userId,
+                Items = cartItems.Select(c => new CompletedOrderItem
+                {
+                    ProductId = c.Product.Id,
+                    Quantity = c.Quantity
+                }).ToList()
+            };
+
+            context.CompletedOrders.Add(completedOrder);
             context.CartItems.RemoveRange(cartItems);
             context.SaveChanges();
 
-            return Ok("Checkout completed successfully");
+            return Ok("Checkout completed successfully.");
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 }
+
+
