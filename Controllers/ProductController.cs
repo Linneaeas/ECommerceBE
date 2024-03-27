@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ECommerceBE.Models;
+using ECommerceBE.Database;
 
 [ApiController]
 [Route("[controller]")]
@@ -23,13 +25,12 @@ public class ProductController : ControllerBase
         this.roleManager = roleManager;
     }
     [HttpPost("AddProduct")]
-    // [Authorize]
+    [Authorize]
     public IActionResult AddProduct(string name, string description, double price, string picture, int inventory)
     {
-        //  User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         Product product = new Product();
-
         product.Name = name;
         product.Description = description;
         product.Price = price;
@@ -39,8 +40,11 @@ public class ProductController : ControllerBase
         context.Products.Add(product);
         context.SaveChanges();
 
-        return Ok("Product added successfully.");
+        return Ok(new ProductDto(product));
     }
+
+
+
     [HttpPut("UpdateProduct/{productId}")]
     public IActionResult UpdateProduct(int productId, Product product)
     {
