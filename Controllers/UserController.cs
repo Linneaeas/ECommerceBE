@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
@@ -21,4 +21,4 @@ public class UserController : ControllerBase
         this.userManager = userManager;
         this.roleManager = roleManager;
     }
-}
+}*/

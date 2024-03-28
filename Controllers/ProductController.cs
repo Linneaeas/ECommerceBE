@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ECommerceBE.Models;
 using ECommerceBE.Database;
 
+
 [ApiController]
 [Route("[controller]")]
 public class ProductController : ControllerBase
@@ -25,17 +26,19 @@ public class ProductController : ControllerBase
         this.roleManager = roleManager;
     }
     [HttpPost("AddProduct")]
-    [Authorize]
-    public IActionResult AddProduct(string name, string description, double price, string picture, int inventory)
+    // [Authorize]
+    public IActionResult AddProduct(ProductDto productDto)
     {
-        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        //   User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        Product product = new Product();
-        product.Name = name;
-        product.Description = description;
-        product.Price = price;
-        product.Picture = picture;
-        product.Inventory = inventory;
+        var product = new Product
+        {
+            Name = productDto.Name,
+            Description = productDto.Description,
+            Price = productDto.Price,
+            Picture = productDto.Picture,
+            Inventory = productDto.Inventory
+        };
 
         context.Products.Add(product);
         context.SaveChanges();
