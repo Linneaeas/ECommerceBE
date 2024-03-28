@@ -11,6 +11,8 @@ using System.Text.Encodings.Web;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using ECommerceBE.Database;
+using Xunit;
+
 
 public class ApplicationFactory<T> : WebApplicationFactory<T> where T : class
 {
