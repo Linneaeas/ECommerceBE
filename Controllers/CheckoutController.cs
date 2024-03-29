@@ -15,14 +15,12 @@ public class CheckOutController : ControllerBase
 {
     MyDbContext context;
     UserManager<User> userManager;
-    RoleManager<IdentityRole> roleManager;
 
-    public CheckOutController(MyDbContext context, UserManager<User> userManager,
-        RoleManager<IdentityRole> roleManager)
+
+    public CheckOutController(MyDbContext context, UserManager<User> userManager)
     {
         this.context = context;
         this.userManager = userManager;
-        this.roleManager = roleManager;
     }
 
 

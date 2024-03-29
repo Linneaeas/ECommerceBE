@@ -1,108 +1,69 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ECommerceBE.Models;
 using ECommerceBE.Database;
 
 [ApiController]
 [Route("[controller]")]
 public class CartController : ControllerBase
 {
-    MyDbContext context;
-    UserManager<User> userManager;
-    RoleManager<IdentityRole> roleManager;
-    public CartController(
-        MyDbContext context,
-        UserManager<User> userManager,
-        RoleManager<IdentityRole> roleManager
-    )
+    private readonly CartService cartService;
+
+    public CartController(CartService cartService)
     {
-        this.context = context;
-        this.userManager = userManager;
-        this.roleManager = roleManager;
+        this.cartService = cartService;
     }
 
     [HttpPost("AddToCart/{productId}/{quantity}")]
     [Authorize]
-    public IActionResult AddToCart(int quantity, int productId)
+    public IActionResult AddToCart(int productId, int quantity)
     {
-        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        User user = context.Users.Include(u => u.CartItems).ThenInclude(ci => ci.Product).FirstOrDefault(u => u.Id == userId);
-        if (user == null)
+        try
         {
-            return NotFound("User not found.");
+            cartService.AddToCart(productId, quantity);
+            return Ok("Product added to cart successfully.");
         }
-        if (quantity <= 0)
+        catch (Exception ex)
         {
-            return BadRequest("Quantity should be a positive integer.");
+            return StatusCode(500, ex.Message);
         }
-        Product product = context.Products.FirstOrDefault(p => p.Id == productId);
-        if (product == null)
-        {
-            return NotFound("Product not found.");
-        }
-        CartItem existingCartItem = user.CartItems.FirstOrDefault(ci => ci.Product.Id == productId);
-        if (existingCartItem != null)
-        {
-            existingCartItem.Quantity += quantity;
-        }
-        else
-        {
-            CartItem cartItem = new CartItem
-            {
-                Product = product,
-                Quantity = quantity,
-                User = user
-            };
-
-            user.CartItems.Add(cartItem);
-        }
-
-        context.SaveChanges();
-        return Ok("Product added to cart successfully.");
     }
 
     [HttpGet("GetCartItems")]
     [Authorize]
-    public List<CartItemDto> GetCartItems()
+    public IActionResult GetCartItems()
     {
-        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var cartItems = context.CartItems
-            .Include(ci => ci.Product)
-            .Where(ci => ci.User.Id == userId)
-            .Select(ci => new CartItemDto
-            {
-                Quantity = ci.Quantity,
-                ProductName = ci.Product.Name
-            })
-            .ToList();
-        return cartItems;
+        try
+        {
+            var cartItems = cartService.GetCartItems();
+            return Ok(cartItems);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
+
     [HttpDelete("RemoveFromCart/{cartItemId}")]
     [Authorize]
     public IActionResult RemoveFromCart(int cartItemId)
     {
-        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        CartItem existingCartItem = context.CartItems
-            .Include(ci => ci.User)
-            .FirstOrDefault(ci => ci.Id == cartItemId && ci.User.Id == userId);
-
-
-        if (existingCartItem == null)
+        try
         {
-            return NotFound("Item not found or does not belong to the current user");
+            bool removedSuccessfully = cartService.RemoveFromCart(cartItemId);
+            if (removedSuccessfully)
+            {
+                return Ok("Item deleted successfully");
+            }
+            else
+            {
+                return NotFound("Item not found or does not belong to the current user");
+            }
         }
-
-        context.CartItems.Remove(existingCartItem);
-        context.SaveChanges();
-
-        return Ok("Item deleted successfully");
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
-
 }
 

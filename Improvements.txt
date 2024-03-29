@@ -1,0 +1,4 @@
+1. Deleted role manager since we dont use it. 
+2. Created CartService
+3. One function to retrive the userID
+4. Fixed CartService and updated CartController accordingly

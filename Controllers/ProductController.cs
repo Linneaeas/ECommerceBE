@@ -15,21 +15,19 @@ public class ProductController : ControllerBase
 {
     MyDbContext context;
     UserManager<User> userManager;
-    RoleManager<IdentityRole> roleManager;
+
 
     public ProductController(
-        MyDbContext context, UserManager<User> userManager,
-        RoleManager<IdentityRole> roleManager)
+        MyDbContext context, UserManager<User> userManager)
     {
         this.context = context;
         this.userManager = userManager;
-        this.roleManager = roleManager;
     }
     [HttpPost("AddProduct")]
-    // [Authorize]
+    [Authorize]
     public IActionResult AddProduct(ProductDto productDto)
     {
-        //   User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         var product = new Product
         {
@@ -66,6 +64,8 @@ public class ProductController : ControllerBase
         context.SaveChanges();
         return Ok("Product updated successfully");
     }
+
+
 
     [HttpDelete("DeleteProduct/{productId}")]
     public IActionResult DeleteProduct(int productId)
