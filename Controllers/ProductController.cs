@@ -1,83 +1,62 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ECommerceBE.Models;
-using ECommerceBE.Database;
 
 
 [ApiController]
 [Route("[controller]")]
 public class ProductController : ControllerBase
 {
-    MyDbContext context;
-    UserManager<User> userManager;
+    private readonly ProductService productService;
 
-
-    public ProductController(
-        MyDbContext context, UserManager<User> userManager)
+    public ProductController(ProductService productService)
     {
-        this.context = context;
-        this.userManager = userManager;
+        this.productService = productService;
     }
+
     [HttpPost("AddProduct")]
     [Authorize]
     public IActionResult AddProduct(ProductDto productDto)
     {
-        User? user = context.Users.Find(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-        var product = new Product
+        try
         {
-            Name = productDto.Name,
-            Description = productDto.Description,
-            Price = productDto.Price,
-            Picture = productDto.Picture,
-            Inventory = productDto.Inventory
-        };
-
-        context.Products.Add(product);
-        context.SaveChanges();
-
-        return Ok(new ProductDto(product));
+            productService.AddProduct(productDto);
+            return Ok("Product added to cart successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
-
-
     [HttpPut("UpdateProduct/{productId}")]
+    [Authorize]
     public IActionResult UpdateProduct(int productId, Product product)
     {
 
-        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == productId);
-
-        if (existingProduct == null)
-            return NotFound("Product not found");
-
-        existingProduct.Name = product.Name;
-        existingProduct.Description = product.Description;
-        existingProduct.Price = product.Price;
-        existingProduct.Picture = product.Picture;
-        existingProduct.Inventory = product.Inventory;
-
-        context.SaveChanges();
-        return Ok("Product updated successfully");
+        try
+        {
+            productService.UpdateProduct(productId, product);
+            return Ok("Product updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
-
-
     [HttpDelete("DeleteProduct/{productId}")]
+    [Authorize]
     public IActionResult DeleteProduct(int productId)
     {
-        Product existingProduct = context.Products.FirstOrDefault(p => p.Id == productId);
-
-        if (existingProduct == null)
-            return NotFound("Product not found");
-
-        context.Products.Remove(existingProduct);
-        context.SaveChanges();
-
-        return Ok("Product deleted successfully");
+        try
+        {
+            productService.DeleteProduct(productId);
+            return Ok("Product removed successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 }

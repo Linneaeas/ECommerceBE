@@ -32,6 +32,8 @@ public class Program
         builder.Services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
 
         SetupSecurity(builder);
+        builder.Services.AddScoped<ProductService>();
+        builder.Services.AddScoped<CartService>();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

@@ -50,15 +50,8 @@ public class CartController : ControllerBase
     {
         try
         {
-            bool removedSuccessfully = cartService.RemoveFromCart(cartItemId);
-            if (removedSuccessfully)
-            {
-                return Ok("Item deleted successfully");
-            }
-            else
-            {
-                return NotFound("Item not found or does not belong to the current user");
-            }
+            cartService.RemoveFromCart(cartItemId);
+            return Ok("Cart item removed successfully.");
         }
         catch (Exception ex)
         {

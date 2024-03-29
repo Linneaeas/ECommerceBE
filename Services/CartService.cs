@@ -97,7 +97,7 @@ public class CartService
         return cartItems;
     }
 
-    public bool RemoveFromCart(int cartItemId)
+    public void RemoveFromCart(int cartItemId)
     {
         string userId = GetCurrentUserId();
 
@@ -118,6 +118,6 @@ public class CartService
         context.CartItems.Remove(existingCartItem);
         context.SaveChanges();
 
-        return true;
+
     }
 }
