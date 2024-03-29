@@ -1,4 +1,8 @@
-1. Deleted role manager since we dont use it. 
-2. Created CartService
-3. One function to retrive the userID
-4. Fixed CartService and updated CartController accordingly
+* Separated DTO's from Models to a DTO folder.
+* Deleted role manager since we dont use it. 
+* Created CartService
+* One function to retrive the userID
+* Fixed CartService and updated CartController accordingly
+* Added ProductService and updated CartController accordingly
+* CheckoutController only has one endpoint so we keept all logic in the controller. 
+* Formatted files, separated long functions/arrow functions etc to multiple lines.  Adjusted spacing to make code more readable.

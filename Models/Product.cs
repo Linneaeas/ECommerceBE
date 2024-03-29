@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-using ECommerceBE.Database;
 
 namespace ECommerceBE.Models
 {
@@ -13,11 +11,7 @@ namespace ECommerceBE.Models
         public double Price { get; set; }
         public string Picture { get; set; }
         public int Inventory { get; set; }
-
     }
-
-
-
 }
 
 

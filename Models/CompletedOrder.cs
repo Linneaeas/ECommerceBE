@@ -1,5 +1,5 @@
 using ECommerceBE.Models;
-using ECommerceBE.Database;
+
 public class CompletedOrder
 {
     public int Id { get; set; }
